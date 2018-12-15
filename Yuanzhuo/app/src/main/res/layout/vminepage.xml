@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:leon="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        android:layout_marginBottom="16dp"
+        android:background="#fff"
+        android:gravity="center"
+        android:orientation="vertical">
+
+
+        <com.fht.yuanzhuo.Utils.CircularImage
+            android:id="@+id/avatar"
+            android:layout_width="100sp"
+            android:layout_height="100sp"
+            android:layout_centerInParent="true"
+            android:foregroundGravity="center"
+            android:src="@drawable/avator" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="10dp"
+            android:text="朱小明"
+            android:textSize="16sp"/>
+    </LinearLayout>
+
+
+    <com.leon.lib.settingview.LSettingItem
+        android:id="@+id/update"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        leon:isShowRightText="true"
+        leon:leftIcon="@drawable/update"
+        leon:leftText="编辑资料"
+        leon:rightText=" " />
+
+    <com.leon.lib.settingview.LSettingItem
+        android:id="@+id/download"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        leon:isShowRightText="true"
+        leon:leftIcon="@drawable/download"
+        leon:leftText="我的下载"
+        leon:rightText=" " />
+
+    <com.leon.lib.settingview.LSettingItem
+        android:id="@+id/adven"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        leon:leftIcon="@drawable/adven"
+        leon:leftText="意见反馈" />
+
+    <com.leon.lib.settingview.LSettingItem
+        android:id="@+id/about"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:theme="@style/MyCheckBox"
+        leon:leftIcon="@drawable/about"
+        leon:leftText="关于我们"/>
+
+    <com.leon.lib.settingview.LSettingItem
+        android:id="@+id/idea"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:theme="@style/MyCheckBox"
+        leon:leftIcon="@drawable/idea"
+        leon:leftText="消息通知"
+        leon:rightStyle="iconSwitch"/>
+
+    <com.leon.lib.settingview.LSettingItem
+        android:id="@+id/mic"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:theme="@style/MyCheckBox"
+        leon:isShowUnderLine="false"
+        leon:leftIcon="@drawable/mic"
+        leon:leftText="我的语音"
+        leon:rightStyle="iconSwitch"/>
+
+    <com.leon.lib.settingview.LSettingItem
+        android:id="@+id/logout"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginTop="10dp"
+        leon:leftIcon="@drawable/logout"
+        leon:isShowUnderLine="false"
+        leon:leftText="退出登录"
+        leon:rightStyle="iconHide"/>
+</LinearLayout>

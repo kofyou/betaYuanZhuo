@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">圆桌</string>
+    <string name="tab_page1">首页</string>
+    <string name="tab_page2">历史记录</string>
+    <string name="tab_page3">通讯录</string>
+    <string name="tab_page4">我的</string>
+
+    <string name="yunxufayan">允许发言</string>
+    <string name="jinzhifayan">禁止发言</string>
+</resources>
