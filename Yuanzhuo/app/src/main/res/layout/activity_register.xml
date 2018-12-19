@@ -4,6 +4,7 @@
     android:id="@+id/activity_login"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/background_login_register"
     tools:context=".Activity.RegisterActivity">
 
 
@@ -67,6 +68,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="100sp"
                 android:inputType="text"
+                android:background="@drawable/background_edittext"
                 android:hint="请输入昵称"/>
         </LinearLayout>
 
@@ -87,6 +89,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="100sp"
                 android:inputType="text"
+                android:background="@drawable/background_edittext"
                 android:hint="请输入手机号"/>
         </LinearLayout>
 
@@ -107,6 +110,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="100sp"
                 android:inputType="textPassword"
+                android:background="@drawable/background_edittext"
                 android:hint="请输入密码"/>
         </LinearLayout>
 
@@ -127,6 +131,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="100sp"
                 android:inputType="textPassword"
+                android:background="@drawable/background_edittext"
                 android:hint="请重复输入密码"/>
         </LinearLayout>
         <!--按钮-->
