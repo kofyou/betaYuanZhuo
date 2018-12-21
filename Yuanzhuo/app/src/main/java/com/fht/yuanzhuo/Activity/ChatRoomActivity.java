@@ -1,14 +1,18 @@
 package com.fht.yuanzhuo.Activity;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,6 +33,13 @@ import com.fht.yuanzhuo.Adapter.ContentAdapter;
 import com.fht.yuanzhuo.Adapter.ContentModel;
 import com.fht.yuanzhuo.R;
 import com.fht.yuanzhuo.UserDataApp;
+import com.fht.yuanzhuo.Userclass.PDFPagerAdapter2;
+import com.itextpdf.text.BadElementException;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.pdf.PdfWriter;
 import com.zego.zegoaudioroom.ZegoAudioRoom;
 import com.zego.zegoaudioroom.ZegoAudioRoomDelegate;
 import com.zego.zegoaudioroom.ZegoAudioStream;
@@ -39,6 +50,12 @@ import com.zego.zegoliveroom.entity.ZegoBigRoomMessage;
 import com.zego.zegoliveroom.entity.ZegoConversationMessage;
 import com.zego.zegoliveroom.entity.ZegoRoomMessage;
 import com.zego.zegoliveroom.entity.ZegoUserState;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,6 +64,8 @@ import es.voghdev.pdfviewpager.library.RemotePDFViewPager;
 import es.voghdev.pdfviewpager.library.adapter.PDFPagerAdapter;
 import es.voghdev.pdfviewpager.library.remote.DownloadFile;
 import es.voghdev.pdfviewpager.library.util.FileUtil;
+
+import static java.lang.Boolean.TRUE;
 
 
 public class ChatRoomActivity extends AppCompatActivity implements DownloadFile.Listener,View.OnClickListener,PopupMenu.OnMenuItemClickListener{
@@ -89,9 +108,13 @@ public class ChatRoomActivity extends AppCompatActivity implements DownloadFile.
     private RemotePDFViewPager remotePDFViewPager;
 
     private String mUrl = "http://134.175.124.41/pdfFile/TEST.pdf";
-    private PDFPagerAdapter adapter;
+    private PDFPagerAdapter2 adapter;
 
-
+    AlertDialog alert = null;
+    AlertDialog.Builder builder = null;
+    /*下面是转换pdf用的*/
+    static Image image;
+    static byte[] bArray;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +123,7 @@ public class ChatRoomActivity extends AppCompatActivity implements DownloadFile.
             getSupportActionBar().hide();
         }
         setContentView(R.layout.activity_chat_room);
+
 
         Intent intent=getIntent();
         String role    = intent.getStringExtra("role");
@@ -176,18 +200,47 @@ public class ChatRoomActivity extends AppCompatActivity implements DownloadFile.
             @Override
             public void onClick(View v) {
                 if(isMaster){
-                    zegoAudioRoom.sendRoomMessage(1, 2, "over", new ZegoRoomMessageDelegate() {
-                        @Override
-                        public void onSendRoomMessage(int i, String s, long l) {
-                            if (hasLogin) {
-                                logout();
-                                adapter.close();
-                            }
-                            Intent intent = new Intent(ChatRoomActivity.this,MainActivity.class);
-                            startActivity(intent);
-                            finish();
-                        }
-                    });
+                    builder = new AlertDialog.Builder(ChatRoomActivity.this);
+                    alert = builder
+                            .setMessage("要保存pdf文件到本地吗？")
+                            .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Toast.makeText(ChatRoomActivity.this, "你点击了取消按钮~", Toast.LENGTH_SHORT).show();
+                                    zegoAudioRoom.sendRoomMessage(1, 2, "over", new ZegoRoomMessageDelegate() {
+                                        @Override
+                                        public void onSendRoomMessage(int i, String s, long l) {
+                                            if (hasLogin) {
+                                                logout();
+                                                adapter.close();
+                                            }
+                                            Intent intent = new Intent(ChatRoomActivity.this,MainActivity.class);
+                                            startActivity(intent);
+                                            finish();
+                                        }
+                                    });
+                                }
+                            })
+                            .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Toast.makeText(ChatRoomActivity.this, "你点击了确定按钮~", Toast.LENGTH_SHORT).show();
+                                    storePdf();
+                                    zegoAudioRoom.sendRoomMessage(1, 2, "over", new ZegoRoomMessageDelegate() {
+                                        @Override
+                                        public void onSendRoomMessage(int i, String s, long l) {
+                                            if (hasLogin) {
+                                                logout();
+                                                adapter.close();
+                                            }
+                                            Intent intent = new Intent(ChatRoomActivity.this,MainActivity.class);
+                                            startActivity(intent);
+                                            finish();
+                                        }
+                                    });
+                                }
+                            }).create();             //创建AlertDialog对象
+                    alert.show();                    //显示对话框
                 }else{
                     if (hasLogin) {
                         logout();
@@ -464,7 +517,7 @@ public class ChatRoomActivity extends AppCompatActivity implements DownloadFile.
     }
 
     public void onSuccess(String url, String destinationPath) {
-        adapter = new PDFPagerAdapter(this, FileUtil.extractFileNameFromURL(url));
+        adapter = new PDFPagerAdapter2(this, FileUtil.extractFileNameFromURL(url));
         remotePDFViewPager.setAdapter(adapter);
         PageNum = remotePDFViewPager.getAdapter().getCount();
         baseBitmaps = new Bitmap[PageNum];
@@ -688,6 +741,134 @@ public class ChatRoomActivity extends AppCompatActivity implements DownloadFile.
         myCanvas.setImageBitmap(baseBitmap);
     }
 
+    protected void storePdf(){
+        new Thread() {
+            public void run() {
+                try
+                {
+                    File sdDir = null;
+                    boolean sdCardExist = Environment.getExternalStorageState().equals(
+                            android.os.Environment.MEDIA_MOUNTED); // 判断sd卡是否存在
+                    if (sdCardExist) {
+                        sdDir = Environment.getExternalStorageDirectory();// 获取跟目录
+                    }
+                    String FILE = sdDir.toString()+"/finallyvol1.pdf";
+                    Log.e("file path",FILE);
+                    final Document document = new Document();
+                    PdfWriter.getInstance(document, new FileOutputStream(FILE,TRUE));
+                    document.open();
+
+                    int[] positionInsiede=adapter.getPositionInside();
+                    for(int i=0;i<PageNum;i++) //一次
+                    {
+
+                        //convert bitmap to bytearray
+                        Bitmap tmpBitmap1=adapter.getBitmap(i);
+                        Bitmap tmpBitmap2=baseBitmaps[i];
+                        if(i==0)
+                        {
+                            Log.e("back",tmpBitmap1.getWidth()+" "+tmpBitmap1.getHeight());
+                            Log.e("fore",tmpBitmap2.getWidth()+" "+tmpBitmap2.getHeight());
+                        }
+
+                        Bitmap tmpBitmap=combineBitmap(tmpBitmap1,tmpBitmap2,positionInsiede[2],positionInsiede[3]);
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        tmpBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                        bArray = baos.toByteArray();
+                        addImage(document);
+                    }
+                    document.close();
+                }
+
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+    }
+
+    public static Bitmap combineBitmap(Bitmap background, Bitmap foreground,int newBackWidth,int newBackHeight)
+    {
+        if (background == null)
+        {
+            return null;
+        }
+        if (foreground == null )
+        {
+            return background;
+        }
+        int bgWidth = background.getWidth();
+        int bgHeight = background.getHeight();
+        int fgWidth = foreground.getWidth();
+        int fgHeight = foreground.getHeight();
+        Log.e("back w h ;fore w h",bgWidth+" "+bgHeight+" "+fgWidth+" "+fgHeight);
+        Bitmap newmap = Bitmap.createBitmap(fgWidth, fgHeight, Bitmap.Config.ARGB_8888);
+//        Bitmap newmap = Bitmap.createBitmap(bgWidth, bgHeight, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(newmap);
+        canvas.drawColor(Color.WHITE);
+        canvas.drawBitmap(newmap,0,0,null);
+//        canvas.drawBitmap(background, 0, 0, null);
+
+        // 计算缩放比例
+        float scaleWidth = ((float) newBackWidth) / bgWidth;
+        float scaleHeight = ((float) newBackHeight) / bgHeight;
+        // 取得想要缩放的matrix参数
+        Matrix matrix = new Matrix();
+        matrix.postScale(scaleWidth, scaleHeight);
+        // 得到新的图片
+        Bitmap newbackground = Bitmap.createBitmap(background, 0, 0, bgWidth, bgHeight, matrix,
+                true);
+
+        canvas.drawBitmap(newbackground, (fgWidth-720) / 2,
+                (fgHeight-458) / 2, null);
+
+//        canvas.drawBitmap(foreground, (bgWidth - fgWidth) / 2,
+//                (bgHeight - fgHeight) / 2, null);
+        canvas.drawBitmap(foreground, 0, 0, null);
+
+        canvas.save();
+        canvas.restore();
+        return newmap;
+    }
+
+    private static void addImage(Document document)
+    {
+
+        try
+        {
+            Log.e("line",String.valueOf(22));
+            image = Image.getInstance(bArray);  ///Here i set byte array..you can do bitmap to byte array and set in image...
+
+            Log.e("line",String.valueOf(22.5));
+        }
+        catch (BadElementException e)
+        {
+            Log.e("line",String.valueOf(23));
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (MalformedURLException e)
+        {Log.e("line",String.valueOf(24));
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        catch (IOException e)
+        {Log.e("line",String.valueOf(25));
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        // image.scaleAbsolute(150f, 150f);
+        try
+        {
+            Log.e("line",String.valueOf(26));
+            image.scaleToFit(PageSize.A4.getWidth(),PageSize.A4.getHeight());
+            document.add(image);
+        } catch (DocumentException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 
 }
 

@@ -49,7 +49,8 @@
         <activity android:name=".Activity.WaitActivity" />
         <activity android:name=".Activity.ChatRoomActivity" />
         <activity android:name=".Activity.DetailActivity" />
-        <activity android:name=".Activity.TestActivity"></activity>
+        <activity android:name=".Activity.TestActivity" />
+        <activity android:name=".Activity.FriendActivity"></activity>
     </application>
 
 </manifest>

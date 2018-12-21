@@ -6,4 +6,9 @@
         android:title="搜索"
         app:actionViewClass="android.support.v7.widget.SearchView"
         app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/newGroup"
+        android:title="新建分组"
+        app:showAsAction="ifRoom"/>
 </menu>
